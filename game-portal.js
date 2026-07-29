@@ -88,3 +88,24 @@ function e(str) {
   div.appendChild(document.createTextNode(str));
   return div.innerHTML;
 }
+
+function filterGames(q) {
+  var cards = document.querySelectorAll('.game-card');
+  q = q.toLowerCase().trim();
+  cards.forEach(function(c) {
+    var title = (c.getAttribute('data-title') || '').toLowerCase();
+    var cat = (c.getAttribute('data-category') || '').toLowerCase();
+    var match = !q || title.indexOf(q) !== -1 || cat.indexOf(q) !== -1;
+    c.style.display = match ? '' : 'none';
+  });
+}
+
+function filterCategory(btn, cat) {
+  document.querySelectorAll('.cat-chip').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var cards = document.querySelectorAll('.game-card');
+  cards.forEach(function(c) {
+    if (cat === 'all') { c.style.display = ''; return; }
+    c.style.display = c.getAttribute('data-category') === cat ? '' : 'none';
+  });
+}
