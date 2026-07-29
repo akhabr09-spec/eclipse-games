@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punch Master (Local)</title>
+    <style>body{margin:0;background:#000;overflow:hidden}#game-container{width:100vw;height:100vh}</style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="unity-canvas" style="width:100%;height:100%"></canvas>
+    </div>
+    <script>
+    window.PokiSDK = {
+        init: () => Promise.resolve(),
+        gameLoadingStart: () => {},
+        gameLoadingFinished: () => {},
+        gameLoadingProgress: () => {},
+        gameplayStart: () => {},
+        gameplayStop: () => {},
+        happyTime: () => Promise.resolve(),
+        commercialBreak: () => Promise.resolve(),
+        rewardedBreak: () => Promise.resolve(),
+        setPlayerAge: () => {},
+        isAdBlocked: () => Promise.resolve(false),
+        shareableUrl: () => window.location.href,
+        getURLParam: () => null,
+        onError: () => {},
+        showResponse: () => {},
+        measure: () => {},
+        getShareableURL: () => Promise.resolve(window.location.href),
+        getUser: () => Promise.resolve({}),
+    };
+    window.Poki = window.Poki || {};
+    window.pokiBridge = window.PokiSDK;
+    window.pokiReady = true;
+    window.pokiAdBlock = false;
+    window.initPokiBridge = function(e) {
+        if (typeof window.unityGame !== 'undefined' && window.unityGame !== null) {
+            window.unityGame.SendMessage(e, 'ready');
+        } else {
+            window.pokiBridge = e;
+        }
+    };
+    window.commercialBreak = function() {
+        PokiSDK.commercialBreak().then(function() {
+            if (window.unityGame) window.unityGame.SendMessage(window.pokiBridge, 'commercialBreakCompleted');
+        });
+    };
+    window.rewardedBreak = function() {
+        PokiSDK.rewardedBreak().then(function(e) {
+            if (window.unityGame) window.unityGame.SendMessage(window.pokiBridge, 'rewardedBreakCompleted', e.toString());
+        });
+    };
+    window.shareableURL = function(e) {
+        PokiSDK.shareableURL(e).then(function(e) {
+            if (window.unityGame) window.unityGame.SendMessage(window.pokiBridge, 'shareableURLResolved', e);
+        }).catch(function() {
+            if (window.unityGame) window.unityGame.SendMessage(window.pokiBridge, 'shareableURLRejected');
+        });
+    };
+    window.getUser = function() {
+        PokiSDK.getUser().then(function(e) {
+            if (window.unityGame) window.unityGame.SendMessage(window.pokiBridge, 'userResolved', JSON.stringify(e));
+        });
+    };
+    var baseUrl = new URL('.', window.location.href).href;
+    </script>
+    <script src="Build/Poki.loader.js"></script>
+    <script>
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: baseUrl + "Build/Poki.data",
+        frameworkUrl: baseUrl + "Build/Poki.framework.js",
+        codeUrl: baseUrl + "Build/Poki.wasm",
+        streamingAssetsUrl: baseUrl + "StreamingAssets",
+        companyName: "Fluffy",
+        productName: "Punch Master",
+        productVersion: "1.0.0",
+        matchWebGLToCanvasSize: true,
+    }).catch(function(e) { console.error(e); });
+    </script>
+</body>
+</html>

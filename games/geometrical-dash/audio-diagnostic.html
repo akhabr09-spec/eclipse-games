@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Audio Diagnostic v3</title>
+<style>body{font-family:system-ui;background:#1a1a2e;color:#eee;padding:2rem;max-width:900px;margin:0 auto}
+h1{color:#e94560}.card{background:#16213e;padding:1.5rem;border-radius:8px;margin:1rem 0}
+.btn{padding:10px 20px;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;margin:4px}
+.btn.primary{background:#0f3460;color:#fff}.btn.success{background:#2e7d32;color:#fff}.btn.danger{background:#e94560}.btn.warn{background:#f5a623;color:#000}
+.log{border:1px solid #333;border-radius:6px;padding:10px;margin-top:1rem;font:13px monospace;background:#0d1117;max-height:400px;overflow-y:auto}
+.good{color:#4caf50}.bad{color:#e94560}.info{color:#64b5f6}.warn{color:#f5a623}</style></head>
+<body>
+<h1>🔊 Audio Diagnostic v3</h1>
+<div id="status" class="card">✨ Loading...</div>
+<div class="card">
+  <button class="btn primary" onclick="testAudio()">🔊 اختبار .snd</button>
+  <button class="btn success" onclick="testOriginal()">🔇 اختبار الأصلي</button>
+  <button class="btn danger" onclick="nukeAndReload()">🧹 نوك + إعادة تحميل</button>
+  <button class="btn warn" onclick="showSWInfo()">ℹ️ فحص الـ SW</button>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+var logEl = document.getElementById('log');
+var statusEl = document.getElementById('status');
+
+function log(msg, cls) {
+  var d = document.createElement('div');
+  d.className = cls || 'info';
+  d.textContent = '> ' + msg;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setStatus(text, cls) {
+  statusEl.innerHTML = text;
+  statusEl.style.borderLeft = '4px solid ' + (cls === 'good' ? '#4caf50' : cls === 'bad' ? '#e94560' : '#f5a623' || '#333');
+}
+
+window.showSWInfo = function() {
+  log('=== فحص SW ===', 'good');
+  if (!navigator.serviceWorker) { log('SW غير مدعوم', 'bad'); return; }
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    log('عدد التسجيلات: ' + regs.length, 'info');
+    regs.forEach(function(r) {
+      log('  Scope: ' + r.scope, 'warn');
+      log('  Script: ' + (r.active ? r.active.scriptURL : 'no active'), 'info');
+    });
+    var ctrl = navigator.serviceWorker.controller;
+    if (ctrl) {
+      log('المتحكم الحالي: ' + ctrl.scriptURL, (ctrl.scriptURL.indexOf('sw.js') >= 0 ? 'good' : 'bad'));
+    } else {
+      log('لا يوجد SW متحكم بالصفحة', 'info');
+    }
+  });
+};
+
+window.nukeAndReload = function() {
+  log('=== نوك ===', 'good');
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+  }).then(function() {
+    return caches.keys().then(function(n) { return Promise.all(n.map(function(c) { return caches.delete(c); })); });
+  }).then(function() {
+    log('تم. إعادة التحميل...', 'good');
+    setTimeout(function() { location.reload(); }, 300);
+  });
+};
+
+function testXHR(files, label) {
+  log('=== ' + label + ' ===', 'good');
+  var done = 0, failed = 0;
+  files.forEach(function(f) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', f, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        log('  ✅ ' + f + ': HTTP 200, ' + xhr.response.byteLength + ' bytes', 'good');
+        try {
+          var ctx = new AudioContext();
+          ctx.decodeAudioData(xhr.response.slice(0)).then(function(buf) {
+            log('     \u2192 WebAudio decoded: ' + buf.duration.toFixed(2) + 's', 'good');
+            ctx.close();
+            done++;
+          }).catch(function(e) {
+            log('     \u2192 WebAudio decode FAILED: ' + e.message, 'bad');
+            ctx.close();
+            failed++;
+          });
+        } catch(e) {
+          log('     \u2192 AudioContext FAILED: ' + e.message, 'bad');
+          failed++;
+        }
+      } else {
+        log('  ❌ ' + f + ': HTTP ' + xhr.status + ' (' + xhr.statusText + ')', 'bad');
+        log('     Response headers: ' + xhr.getAllResponseHeaders(), 'warn');
+        failed++;
+      }
+    };
+    xhr.onerror = function() {
+      log('  ❌ ' + f + ': XHR error', 'bad');
+      failed++;
+    };
+    xhr.send();
+  });
+}
+
+window.testAudio = function() {
+  testXHR([
+    'assets/audio/button.snd',
+    'assets/audio/coin.snd',
+    'assets/audio/menu.snd',
+    'assets/audio/swipeL.snd',
+  ], '\u0627\u062E\u062A\u0628\u0627\u0631 \u062A\u062D\u0645\u064A\u0644 \u0645\u0628\u0627\u0634\u0631 (XHR) - \u0627\u0645\u062A\u062F\u0627\u062F .snd');
+};
+
+window.testOriginal = function() {
+  testXHR([
+    'assets/audio/button.wav',
+    'assets/audio/coin.wav',
+    'assets/audio/menu.ogg',
+    'assets/audio/swipeL.mp3',
+  ], '\u0627\u062E\u062A\u0628\u0627\u0631 \u0627\u0644\u062A\u062D\u0645\u064A\u0644 \u0628\u0627\u0644\u0627\u0645\u062A\u062F\u0627\u062F \u0627\u0644\u0623\u0635\u0644\u064A');
+};
+
+// Startup info
+showSWInfo();
+
+log('تعليمات:', 'info');
+log('1. اضغط "نوك + إعادة تحميل" لمسح كل SWs والكاشات', 'warn');
+log('2. بعد إعادة التحميل، اضغط "اختبار .snd" - يجب أن يعمل 200 + WebAudio decoded', 'warn');
+log('3. اضغط "اختبار الأصلي" - من المتوقع فشل 204 (IDM intercept)', 'warn');
+log('4. تأكد أن الـ SW الجديد يتحكم بالصفحة (فحص SW)', 'warn');
+log('5. اختبر اللعبة - إذا .snd يعمل في التشخيص يجب أن يعمل في اللعبة', 'warn');
+</script>
+</body>
+</html>

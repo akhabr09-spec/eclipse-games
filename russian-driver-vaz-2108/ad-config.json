@@ -1,0 +1,22 @@
+{
+  "waterfall": [
+    {
+      "name": "admob",
+      "priority": 0,
+      "enabled": true,
+      "appId": "ca-app-pub-5260514865597798~1263924868",
+      "interstitialId": "ca-app-pub-5260514865597798/1263924868",
+      "bannerId": "ca-app-pub-5260514865597798/1263924868",
+      "rewardedId": "ca-app-pub-5260514865597798/1263924868",
+      "testMode": false
+    },
+    {
+      "name": "unity",
+      "priority": 1,
+      "enabled": true,
+      "gameId": "",
+      "testMode": false
+    }
+  ],
+  "testMode": false
+}

@@ -1,0 +1,213 @@
+<!DOCTYPE html><html style="--construct-scale: 1;"><head>
+    <meta charset="UTF-8">
+	<title>oozyslab</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	
+	<!-- Made with Construct, the game and app creator :: https://www.construct.net -->
+	<meta name="generator" content="Scirra Construct">
+
+	<meta name="author" content="Wackytoaster">
+
+	<link rel="manifest" href="appmanifest.json">
+	<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+	<link rel="apple-touch-icon" sizes="256x256" href="icons/icon-256.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+	<link rel="icon" type="image/png" href="icons/icon-512.png">
+
+	<link rel="stylesheet" href="style.css">
+
+
+
+<style>
+  canvas {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }</style><script>window.PokiSDK={init:()=>Promise.resolve(),gameLoadingStart:()=>{},gameLoadingFinished:()=>{},gameLoadingProgress:()=>{},gameplayStart:()=>{},gameplayStop:()=>{},happyTime:()=>Promise.resolve(),commercialBreak:()=>Promise.resolve(),rewardedBreak:()=>Promise.resolve(),setPlayerAge:()=>{},isAdBlocked:()=>Promise.resolve(!1),shareableUrl:()=>location.href,getURLParam:()=>null,onError:()=>{},showResponse:()=>{},measure:()=>{},getShareableURL:()=>Promise.resolve(location.href),getUser:()=>Promise.resolve({})};window.Poki=window.Poki||{};window.pokiBridge=window.PokiSDK;window.pokiReady=!0;window.pokiAdBlock=!1;window.initPokiBridge=function(e){window.pokiBridge=e};window.commercialBreak=function(){PokiSDK.commercialBreak().then(function(){if(window.unityGame)window.unityGame.SendMessage(window.pokiBridge,'commercialBreakCompleted')})};window.rewardedBreak=function(){PokiSDK.rewardedBreak().then(function(e){if(window.unityGame)window.unityGame.SendMessage(window.pokiBridge,'rewardedBreakCompleted',e.toString())})};window.shareableURL=function(e){PokiSDK.shareableURL(e).then(function(e){if(window.unityGame)window.unityGame.SendMessage(window.pokiBridge,'shareableURLResolved',e)})};window.getUser=function(){PokiSDK.getUser().then(function(e){if(window.unityGame)window.unityGame.SendMessage(window.pokiBridge,'userResolved',JSON.stringify(e))})}</script><style>
+.m8FXBR {
+	overflow: hidden;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 99999;
+}
+
+.m8FXBR.t_E9eW {
+	position: fixed;
+}
+
+.nAM_hf {
+	background: #000;
+	backdrop-filter: blur(10px);
+
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+}
+
+.qmpUYt {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.qmpUYt.qWB0AN {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 99999;
+	cursor: pointer;
+}
+
+.aPwh82 {
+	position: absolute;
+	z-index: 9999;
+	top: 0;
+
+	padding-top: 10%;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #FFF;
+
+	font: 700 15pt 'Arial', sans-serif;
+	font-weight: bold;
+	letter-spacing: 1px;
+	transition: 0.1s ease-in-out;
+	line-height: 1em;
+
+	display: none;
+}
+
+.qQtYdx {
+    background: rgba(0, 43, 80, 0.5);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+	z-index: 11;
+}
+
+.PBq_cb {
+	cursor:pointer;
+	width: 100%;
+	height: 100%;
+	z-index: 10;
+}
+
+.PBq_cb:hover .qQtYdx {
+		background: rgba(0, 43, 80, 0.7);
+	}
+
+.o_W9J9 {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 12;
+}
+
+.o_W9J9:before {
+		content: '';
+		position: absolute;
+		width: 100px;
+		height: 100px;
+		display: block;
+		border: 2px solid #fff;
+		border-radius: 50%;
+		-webkit-user-select: none;
+		   -moz-user-select: none;
+		        user-select: none;
+		background-color: rgba(0, 0, 0, 0.6);
+		transition: background-color 0.5s ease;
+		animation: 1s linear infinite vCajRE;
+		z-index: 12;
+	}
+
+.o_W9J9:after {
+		content: '';
+		position: absolute;
+		display: block;
+		box-sizing: border-box;
+		border-color: transparent transparent transparent #fff;
+		border-style: solid;
+		border-width: 26px 0 26px 40px;
+		pointer-events: none;
+		animation: 1s linear infinite vCajRE;
+		left: 6px;
+		z-index: 12;
+	}
+
+@keyframes vCajRE {
+	0% {
+		transform: translate(-50%, -50%) scale(0.95);
+	}
+	70% {
+		transform: translate(-50%, -50%) scale(1.1);
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(0.95);
+	}
+}
+
+.LI2Nug {
+	bottom: 10px;
+	position: absolute;
+	left: 10px;
+	z-index: 9999;
+	color: #FFF;
+	font: 700 9pt 'Arial', sans-serif;
+	filter: drop-shadow(0 0 0.2rem black);
+}
+
+.pkttBY {
+	display: block;
+	pointer-events: auto;
+}
+
+.pkttBY .nAM_hf {
+		opacity: 1;
+	}
+
+.Q94dIO {
+	display: none;
+	pointer-events: none;
+}
+</style></head> 
+ 
+<body style="">
+
+	
+
+<script>
+if (location.protocol.substr(0, 4) === "file")
+{
+	alert("Web exports won't work until you upload them. (When running on the file: protocol, browsers block many features from working for security reasons.)");
+}
+</script>
+	
+	<noscript>
+		<div id="notSupportedWrap">
+			<h2 id="notSupportedTitle">This content requires JavaScript</h2>
+			<p class="notSupportedMessage">JavaScript appears to be disabled. Please enable it to view this content.</p>
+		</div>
+	</noscript>
+	<script src="scripts/modernjscheck.js"></script>
+	<script src="scripts/supportcheck.js"></script>
+	<script src="scripts/offlineclient.js" type="module"></script>
+	<script src="scripts/main.js" type="module"></script>
+	<script src="scripts/register-sw.js" type="module"></script>
+
+ 
+<canvas width="1280" height="720" style="width: 1280px; height: 720px; margin-left: 0px; margin-top: 0px;"></canvas><div class="c3htmlwrap" interactive="" style="width: 1280px; height: 720px; margin-left: 0px; margin-top: 0px;"></div><div class="c3-screen-reader-text" aria-live="polite"></div></body></html>

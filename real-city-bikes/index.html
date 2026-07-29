@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Real City Bikes</title>
+<script>
+    window.ysdk = {
+        environment: { i18n: { lang: "en" } },
+        features: { LoadingAPI: { ready: () => {} } }
+    };
+    window.ysdkLang = "en";
+    window.ysdkReady = true;
+</script>
+<script>
+window.config = {
+    loader: 'unity-2020',
+    debug: false,
+    maxRatio: 24 / 9,
+    minRatio: 9 / 24,
+    title: '',
+    thumbnail: 'logo.png',
+    numScreenshots: 4,
+    unityVersion: '2022.3.44f1',
+    unityWebglBuildUrl: '',
+    fileSize: 24,
+    cachedDecompressedFileSizes: {
+        'finito6.data.unityweb': 18949440,
+        'finito6.framework.js': 68011,
+        'finito6.loader.js': 65365,
+        'finito6.wasm.unityweb': 5306609,
+    },
+    "metadata": {"poki_template_version":1,"background_color":"#231F20","code_filename":"finito6.wasm.unityweb","company_name":"Fuego! Games","data_filename":"finito6.data.unityweb","decompression_fallback":"Brotli","development_player":"false","framework_filename":"finito6.framework.js.unityweb","height":"720","loader_filename":"finito6.loader.js","product_name":"Real City Bikes","product_version":"0.1","splash_screen_style":"Dark","unity_version":"2022.3.44f1","use_data_caching":"true","use_threads":"false","use_wasm":"true","use_webgl_1_0":"false","use_webgl_2_0":"true","width":"1280"}
+};
+</script>
+<script>
+    (function () {
+        const audioState = { adOpen: false, hidden: false, blurred: false, muted: false };
+        const audioContexts = new Set();
+        function rememberContext(ctx) { if (ctx) audioContexts.add(ctx); return ctx; }
+        function wrapAudioContext(name) {
+            const Native = window[name];
+            if (!Native || Native.__focusMuteWrapped) return;
+            function Wrapped(...args) { const ctx = new Native(...args); rememberContext(ctx); return ctx; }
+            Wrapped.prototype = Native.prototype;
+            Object.setPrototypeOf(Wrapped, Native);
+            Wrapped.__focusMuteWrapped = true;
+            window[name] = Wrapped;
+        }
+        wrapAudioContext("AudioContext");
+        wrapAudioContext("webkitAudioContext");
+        function shouldMute() { return audioState.adOpen || audioState.hidden || audioState.blurred; }
+        async function setUnityMute(mute) {
+            audioState.muted = mute;
+            document.querySelectorAll("audio, video").forEach(el => { el.muted = mute; el.volume = mute ? 0 : 1; });
+            for (const ctx of audioContexts) {
+                try { if (mute && ctx.state === "running") await ctx.suspend(); else if (!mute && ctx.state === "suspended") await ctx.resume(); } catch (e) {}
+            }
+        }
+        function refreshMute() { setUnityMute(shouldMute()); }
+        window.__muteForAd = function () { audioState.adOpen = true; refreshMute(); };
+        window.__unmuteAfterAd = function () { audioState.adOpen = false; refreshMute(); };
+        document.addEventListener("visibilitychange", function () { audioState.hidden = document.hidden; refreshMute(); });
+        window.addEventListener("blur", function () { audioState.blurred = true; refreshMute(); });
+        window.addEventListener("focus", function () { audioState.blurred = false; refreshMute(); });
+        setInterval(() => {
+            document.querySelectorAll("audio, video").forEach(el => { el.muted = shouldMute(); el.volume = shouldMute() ? 0 : 1; });
+        }, 500);
+        refreshMute();
+    })();
+</script>
+</head>
+<body>
+<script src="master-loader.js"></script>
+</body>
+</html>

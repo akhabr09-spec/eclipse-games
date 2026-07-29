@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>T-REX N.Y</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" sizes="256x256" href="icon-256.png" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="shortcut icon" sizes="256x256" href="icon-256.png" />
+
+    <style type="text/css">
+        * { padding: 0; margin: 0; }
+        html, body { background: #000; color: #fff; overflow: hidden; touch-action: none; -ms-touch-action: none; }
+        canvas { touch-action-delay: none; touch-action: none; -ms-touch-action: none; }
+    </style>
+
+    <!-- Yandex Games SDK -->
+    <script src="/sdk.js"></script>
+</head>
+<body>
+    <div id="c2canvasdiv">
+        <canvas id="c2canvas" width="1024" height="584"></canvas>
+    </div>
+
+    <script src="jquery-2.1.1.min.js"></script>
+    <script src="md5.pack.js"></script>
+    <script src="game.js"></script>
+
+    <script>
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); }, false);
+
+        // SDK object — stored globally so game.js can access it
+        window.ysdk = null;
+
+        // ====== SDK Initialization (separate from LoadingAPI) ======
+        function initYaSDK() {
+            if (typeof YaGames === 'undefined') {
+                console.warn('[Yandex] YaGames not defined yet');
+                return;
+            }
+            YaGames.init().then(function(sdk) {
+                window.ysdk = sdk;
+                window.YandexSDK = sdk;
+                console.log('[Yandex] SDK initialized successfully');
+            }).catch(function(e) {
+                console.error('[Yandex] SDK init failed:', e);
+                // Retry after 3 seconds
+                setTimeout(initYaSDK, 3000);
+            });
+        }
+
+        // Start SDK init immediately
+        initYaSDK();
+
+        // If YaGames not loaded yet, poll for it
+        var sdkPollInterval = setInterval(function() {
+            if (typeof YaGames !== 'undefined') {
+                clearInterval(sdkPollInterval);
+                if (!window.ysdk) initYaSDK();
+            }
+        }, 200);
+        setTimeout(function() { clearInterval(sdkPollInterval); }, 15000);
+
+        // ====== LoadingAPI.ready() — called ONLY when game is ready ======
+        var gameReadyCalled = false;
+
+        function callGameReady() {
+            if (gameReadyCalled) return;
+            if (!window.ysdk) {
+                // SDK not ready yet — poll until it is, with timeout
+                console.log('[Yandex] ysdk not ready, polling...');
+                var readyPoll = setInterval(function() {
+                    if (window.ysdk) {
+                        clearInterval(readyPoll);
+                        doLoadingReady();
+                    }
+                }, 100);
+                // If ysdk never becomes available after 30s, force re-init and keep trying
+                setTimeout(function() {
+                    clearInterval(readyPoll);
+                    if (!window.ysdk) {
+                        console.warn('[Yandex] ysdk still null after 30s, retrying SDK init');
+                        initYaSDK();
+                        var readyPoll2 = setInterval(function() {
+                            if (window.ysdk) {
+                                clearInterval(readyPoll2);
+                                doLoadingReady();
+                            }
+                        }, 100);
+                        setTimeout(function() { clearInterval(readyPoll2); }, 30000);
+                    }
+                }, 30000);
+                return;
+            }
+            doLoadingReady();
+        }
+
+        function doLoadingReady() {
+            if (gameReadyCalled) return;
+            if (!window.ysdk) return;
+            gameReadyCalled = true;
+            try {
+                if (window.ysdk.features && window.ysdk.features.LoadingAPI) {
+                    window.ysdk.features.LoadingAPI.ready();
+                    console.log('[Yandex] LoadingAPI.ready() called');
+                }
+            } catch(e) {
+                console.error('[Yandex] LoadingAPI.ready() error:', e);
+            }
+            try {
+                if (window.ysdk.features && window.ysdk.features.GameplayAPI) {
+                    window.ysdk.features.GameplayAPI.start();
+                }
+            } catch(e) {}
+        }
+
+        // ====== C2_RegisterSW — called by Construct 2 when game finishes loading ======
+        window.C2_RegisterSW = function() {
+            console.log('[Yandex] C2_RegisterSW called');
+            callGameReady();
+        };
+
+        // ====== Visibility (tab switch) — pause/resume gameplay + suspend game ======
+        function onVisibilityChanged() {
+            if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden) {
+                try { cr_setSuspended(true); } catch(e) {}
+                if (window.ysdk && window.ysdk.features && window.ysdk.features.GameplayAPI) {
+                    try { window.ysdk.features.GameplayAPI.stop(); } catch(e) {}
+                }
+            } else {
+                try { cr_setSuspended(false); } catch(e) {}
+                if (window.ysdk && window.ysdk.features && window.ysdk.features.GameplayAPI) {
+                    try { window.ysdk.features.GameplayAPI.start(); } catch(e) {}
+                }
+            }
+        }
+        document.addEventListener("visibilitychange", onVisibilityChanged, false);
+    </script>
+</body>
+</html>

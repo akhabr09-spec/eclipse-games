@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<link rel="stylesheet" href="./style.css"/>
+<style>
+    canvas:focus { outline: none; }
+    html, body {
+        padding: 0; margin: 0; overflow: hidden;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        height: 100%;
+    }
+</style>
+</head>
+<body class="dark">
+<div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+</div>
+<div id="loading-cover" style="display:none;">
+    <div id="unity-loading-bar">
+        <div id="unity-progress-bar-empty" style="display: none;">
+            <div id="unity-progress-bar-full"></div>
+        </div>
+        <div class="spinner"></div>
+    </div>
+</div>
+<script>
+    const NO_DATA = 'no data';
+    var environmentData = NO_DATA;
+    var playerData = NO_DATA;
+    var cloudSaves = NO_DATA;
+    var reviewData = 'false';
+    var statsSaves = NO_DATA;
+    var paymentsData = NO_DATA;
+    var allGamesData = NO_DATA;
+    var gameLabelData = 'false';
+    var flasgsData = NO_DATA;
+    var ysdk = null;
+    var initYSDK = false;
+    var initGame = false;
+    var player = null;
+    var payments = null;
+
+    function LogStyledMessage(msg, style) { console.log('%c' + msg, style || 'color: #FFDF73; background-color: #454545'); }
+
+    function RequestingEnvironmentData() {
+        var language = navigator.language || navigator.userLanguage || 'en';
+        var browser = 'Other';
+        var ua = navigator.userAgent;
+        if (ua.includes('Chrome')) browser = 'Chrome';
+        else if (ua.includes('Firefox')) browser = 'Firefox';
+        else if (ua.includes('Safari')) browser = 'Safari';
+        else if (ua.includes('Edge')) browser = 'Edge';
+        else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+        environmentData = JSON.stringify({
+            language: language, domain: 'com', deviceType: 'desktop',
+            isMobile: false, isDesktop: true, isTablet: false, isTV: false,
+            appID: '502605', browserLang: language, payload: '',
+            platform: navigator.platform, browser: browser
+        });
+        LogStyledMessage('Environment Data: ' + environmentData);
+    }
+
+    function InitPlayer() {
+        playerData = JSON.stringify({
+            playerAuth: 'rejected', playerName: 'Guest',
+            playerId: 'offline', playerPhoto: 'no data', payingStatus: 'unknown'
+        });
+        return Promise.resolve(playerData);
+    }
+
+    function LoadCloud() { cloudSaves = NO_DATA; return Promise.resolve(cloudSaves); }
+    function SaveCloud(jsonData, flush) {}
+    function InitReview() { reviewData = 'false'; return Promise.resolve('false'); }
+    function GetStats() { statsSaves = NO_DATA; return Promise.resolve(statsSaves); }
+    function SetStats(jsonStats) {}
+
+    function InitPayments() {
+        paymentsData = NO_DATA;
+        return Promise.resolve(paymentsData);
+    }
+    function BuyPayments(id) { LogStyledMessage('Payments not available offline'); }
+    function ConsumePurchase(id, onPurchaseSuccess) {}
+    function ConsumePurchases(onPurchaseSuccess) {}
+
+    function GetAllGames() { allGamesData = NO_DATA; return Promise.resolve(allGamesData); }
+    function InitGameLabel() { gameLabelData = 'false'; return Promise.resolve('false'); }
+    function GameLabelShowDialog() {}
+    function GetFlags() { flasgsData = NO_DATA; return Promise.resolve(flasgsData); }
+
+    function InitGame() {
+        initGame = true;
+        LogStyledMessage('Init Game (offline)');
+    }
+
+    function GetLeaderboard() {}
+    function SetLeaderboard() {}
+    function Review() {}
+    function OpenAuthDialog() {}
+    function StickyAdActivity(show) {}
+    function InterAdvShow() {}
+    function RewardedAdvShow(id) { LogStyledMessage('Rewarded ad skipped (offline)'); }
+
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/ZTestBuld.loader.js";
+    const config = {
+        dataUrl: buildUrl + "/ZTestBuld.data",
+        frameworkUrl: buildUrl + "/ZTestBuld.framework.js",
+        codeUrl: buildUrl + "/ZTestBuld.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "TestBildNaProlom",
+        productVersion: "1.0"
+    };
+
+    const container = document.querySelector("#unity-container");
+    const canvas = document.querySelector("#unity-canvas");
+    const loadingCover = document.querySelector("#loading-cover");
+    const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+    const progressBarFull = document.querySelector("#unity-progress-bar-full");
+    const spinner = document.querySelector('.spinner');
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+    }
+
+    loadingCover.style.display = "";
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    RequestingEnvironmentData();
+    InitPlayer();
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+            spinner.style.display = "none";
+            progressBarEmpty.style.display = "";
+            const adjustedProgress = Math.max(progress, 0.05);
+            progressBarFull.style.width = `${100 * adjustedProgress}%`;
+        }).then((unityInstance) => {
+            loadingCover.style.background = "";
+            loadingCover.style.display = "none";
+            LogStyledMessage('Game loaded successfully!');
+        }).catch((message) => {
+            console.error(message);
+        });
+    };
+    document.body.appendChild(script);
+</script>
+</body>
+</html>

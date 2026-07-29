@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclipse Games - Play Free Online Games</title>
+<meta name="description" content="Play 19+ free online games including racing, action, puzzle, shooting and more. No download required.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0d0d1a; color: #fff; min-height: 100vh; }
+.header { background: linear-gradient(135deg, #1a1a2e, #0d0d1a); border-bottom: 1px solid rgba(255,107,53,0.15); padding: 0 20px; height: 56px; display: flex; align-items: center; }
+.header a { color: #ff6b35; font-size: 20px; font-weight: 900; text-decoration: none; }
+.game-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.game-header { margin-bottom: 20px; }
+.game-header h1 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+.game-meta { color: #6b6b80; font-size: 14px; }
+.game-frame-wrap { position: relative; width: 100%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,107,53,0.15); margin-bottom: 20px; }
+.game-frame { width: 100%; display: block; border: none; }
+.game-controls { display: flex; gap: 8px; padding: 12px 16px; background: #1a1a2e; border-top: 1px solid rgba(255,107,53,0.15); }
+.game-controls button { padding: 8px 16px; border-radius: 50px; border: 1px solid rgba(255,107,53,0.15); background: transparent; color: #b0b0c0; font-size: 13px; cursor: pointer; }
+.game-controls button:hover { background: #ff6b35; color: #fff; }
+.game-desc { background: #16213e; border-radius: 10px; padding: 20px; border: 1px solid rgba(255,107,53,0.15); margin-bottom: 20px; }
+.game-desc h2 { font-size: 18px; margin-bottom: 10px; }
+.game-desc h2 span { color: #ff6b35; }
+.game-desc p { color: #b0b0c0; font-size: 15px; line-height: 1.8; }
+.game-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.game-tags span { padding: 4px 12px; background: #1a1a2e; border-radius: 50px; font-size: 12px; color: #6b6b80; border: 1px solid rgba(255,107,53,0.15); }
+.back-link { display: inline-flex; align-items: center; gap: 6px; color: #ff6b35; text-decoration: none; font-weight: 600; margin-bottom: 16px; }
+.back-link:hover { color: #ff8c5a; }
+.ad-box { background: #1a1a2e; border: 1px dashed rgba(255,107,53,0.15); border-radius: 10px; padding: 16px; text-align: center; color: #6b6b80; font-size: 13px; margin: 16px 0; min-height: 90px; display: flex; align-items: center; justify-content: center; }
+.game-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; padding: 16px; background: #16213e; border-radius: 10px; border: 1px solid rgba(255,107,53,0.15); }
+.game-nav a { padding: 6px 14px; border-radius: 50px; font-size: 13px; background: #1a1a2e; color: #b0b0c0; text-decoration: none; border: 1px solid rgba(255,107,53,0.15); }
+.game-nav a:hover, .game-nav a.active { background: #ff6b35; color: #fff; }
+@media (max-width: 600px) { .game-header h1 { font-size: 22px; } .game-page { padding: 12px; } }
+</style>
+</head>
+<body>
+<div class="header"><a href="/">🎮 Eclipse Games</a></div>
+<div class="game-page">
+  <a class="back-link" href="/">← Back to Home</a>
+  <div id="gameContent"></div>
+</div>
+
+<script>
+const GAMES = [
+  {id:"monster-truck-2d",title:"Monster Truck 2D",cat:"Racing",tags:"monster truck racing offroad 2d car",path:"games/monster-truck-2d",w:854,h:480,desc:"Offroad monster truck racing game. Drive your giant truck across rugged desert tracks and mountains"},
+  {id:"geometrical-dash",title:"Geometrical Dash",cat:"Action",tags:"geometry dash jump action hard",path:"games/geometrical-dash",w:800,h:600,desc:"Challenging jump and run action game. Avoid sharp obstacles and reach the finish line"},
+  {id:"gangster-v",title:"Gangster V",cat:"Shooting",tags:"gangster shooting action city crime",path:"gangster-v",w:800,h:600,desc:"Action-packed shooting game. Complete dangerous missions in the city streets"},
+  {id:"om-nom-run",title:"Om Nom Run",cat:"Action",tags:"om nom run endless candy adventure",path:"om-nom-run",w:800,h:600,desc:"Fun endless runner adventure with the beloved Om Nom character"},
+  {id:"cat-and-granny-2",title:"Cat and Granny 2",cat:"Puzzle",tags:"cat granny puzzle stealth funny",path:"cat-and-granny-2",w:800,h:600,desc:"Fun puzzle adventure game. Help the little cat on his mission without being seen by granny"},
+  {id:"oozys-lab",title:"Oozy's Lab",cat:"Puzzle",tags:"lab science puzzle experiment",path:"oozys-lab",w:800,h:600,desc:"Fun science lab puzzle game. Help Oozy with his experiments"},
+  {id:"keyboard-escape-1-speed",title:"Keyboard Escape",cat:"Action",tags:"keyboard escape speed reflex",path:"keyboard-escape-1-speed",w:800,h:600,desc:"Fast-paced speed and reflex game. Use the keyboard to escape from traps"},
+  {id:"the-cat-in-yellow",title:"The Cat in Yellow",cat:"Adventure",tags:"cat adventure platformer puzzle",path:"the-cat-in-yellow",w:800,h:600,desc:"Exciting adventure with the yellow cat. Explore strange worlds and solve puzzles"},
+  {id:"punch-master",title:"Punch Master",cat:"Action",tags:"punch boxing fighting action",path:"punch-master",w:800,h:600,desc:"Action fighting game. Show your power and speed in the boxing ring"},
+  {id:"rainbow-pony-caring",title:"Rainbow Pony Caring",cat:"Simulation",tags:"pony rainbow caring simulation kids",path:"games/rainbow-pony-caring",w:800,h:600,desc:"Pet care simulation game. Take care of your beautiful pony"},
+  {id:"commando-gun-shooting",title:"Commando Gun Shooting",cat:"Shooting",tags:"commando shooting fps action war",path:"commando-gun-shooting",w:900,h:600,desc:"First-person shooting action game. Raid enemy strongholds and complete missions"},
+  {id:"traffic-jam-3d",title:"Traffic Jam 3D",cat:"Racing",tags:"traffic car racing 3d avoid",path:"traffic-jam-3d",w:960,h:600,desc:"3D racing game. Dodge cars in heavy traffic and collect points"},
+  {id:"counter-strike-pixel",title:"Counter Strike Pixel",cat:"Shooting",tags:"cs pixel shooting fps",path:"counter-strike-pixel-shooter",w:960,h:600,desc:"Classic shooting game with pixel art style"},
+  {id:"beach-boxing",title:"Beach Boxing",cat:"Action",tags:"boxing beach fighting sports",path:"beach-boxing-simulator",w:960,h:600,desc:"Fun boxing game on the beach. Challenge your opponents"},
+  {id:"t-rex-game",title:"T-Rex NY",cat:"Action",tags:"t-rex dinosaur adventure endless",path:"yandex-deployed",w:1024,h:584,desc:"Dinosaur adventure in New York City. Escape and overcome obstacles as T-Rex"},
+  {id:"obby-crunchy-butter-escape",title:"Obby Escape",cat:"Adventure",tags:"obby escape obstacle parkour",path:"obby-crunchy-butter-escape",w:960,h:600,desc:"Adventure and escape game. Navigate through complex mazes"},
+  {id:"wolf-robot-transform",title:"Wolf Robot Transform",cat:"Action",tags:"wolf robot transform action car",path:"wolf-robot-transform-car",w:960,h:600,desc:"Exciting action game. Transform between wolf and robot to fight enemies"},
+  {id:"russian-driver",title:"Russian Driver",cat:"Racing",tags:"russian car driving racing",path:"russian-driver-vaz-2108",w:960,h:600,desc:"Classic Russian car driving game in tough conditions"},
+  {id:"real-city-bikes",title:"Real City Bikes",cat:"Racing",tags:"bike racing city motorcycle speed",path:"real-city-bikes",w:960,h:600,desc:"Motorcycle racing game in the city streets. Race and escape from the police"}
+];
+
+const GAMES_BASE = 'https://akhabr09-spec.github.io/eclipse-games';
+
+function showGame(id) {
+  const game = GAMES.find(g => g.id === id) || GAMES[0];
+  if (!game) return;
+  
+  history.replaceState(null, '', '?game=' + game.id);
+  document.title = game.title + ' | Eclipse Games';
+  
+  const nav = GAMES.map(g => '<a href="?game=' + g.id + '" class="' + (g.id === game.id ? 'active' : '') + '">' + g.title + '</a>').join('');
+  
+  document.getElementById('gameContent').innerHTML =
+    '<div class="game-nav">' + nav + '</div>' +
+    '<div class="game-header">' +
+    '<h1>' + game.title + '</h1>' +
+    '<div class="game-meta">🎮 ' + game.cat + '</div></div>' +
+    '<div class="ad-box">📢 Ad Space</div>' +
+    '<div class="game-frame-wrap">' +
+    '<iframe class="game-frame" src="' + GAMES_BASE + '/' + game.path + '" allow="autoplay; fullscreen" frameborder="0" scrolling="no" style="aspect-ratio:' + game.w + '/' + game.h + '; max-height:80vh;"></iframe>' +
+    '<div class="game-controls">' +
+    '<button onclick="document.querySelector(\'.game-frame\').requestFullscreen()">⛶ Fullscreen</button>' +
+    '<button onclick="location.reload()">🔄 Reload</button></div></div>' +
+    '<div class="ad-box">📢 Ad Space</div>' +
+    '<div class="game-desc">' +
+    '<h2><span>📖</span> About This Game</h2>' +
+    '<p>' + game.desc + '</p>' +
+    '<div class="game-tags">' + game.tags.split(' ').map(t => '<span>#' + t + '</span>').join('') + '</div></div>' +
+    '<div class="ad-box">📢 Ad Space</div>';
+}
+
+// Load game from URL param
+function loadFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const gameId = params.get('game');
+  showGame(gameId || GAMES[0].id);
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'A' && e.target.closest('.game-nav')) {
+    e.preventDefault();
+    const params = new URLSearchParams(e.target.search);
+    showGame(params.get('game'));
+  }
+});
+
+window.addEventListener('popstate', loadFromUrl);
+loadFromUrl();
+</script>
+</body>
+</html>

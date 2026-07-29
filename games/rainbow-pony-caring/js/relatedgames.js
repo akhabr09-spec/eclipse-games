@@ -1,0 +1,21 @@
+var thumburi = [
+	{
+		uri:"https://7sgames.com/game/Elsa-Time-Travel"
+	},{
+		uri:"https://7sgames.com/game/Traffic-Car-Racing-Game"
+	},{
+		uri:"https://7sgames.com/game/Design-Santa-S-Sleigh-Game"
+	},{
+		uri:"https://7sgames.com/game/Mermaid-Christmas-Game"
+	},{
+		uri:"https://7sgames.com/game/Barbies-Charismas-Gifts-Game"
+	},{
+		uri:"https://7sgames.com/game/Mother-And-Baby-Elsa-Photoshoot-Game"
+	},{
+		uri:"https://7sgames.com/game/Princess-Belly-Dance-Game"
+	},{
+		uri:"https://7sgames.com/game/Princess-In-Prom-Night-Game"
+	},{
+		uri:"https://7sgames.com/game/Princess-in-Africa-Game"
+	},
+];

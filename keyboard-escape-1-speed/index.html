@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Keyboard Escape: +1 Speed</title>
+    <link rel="icon" href="data:,">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%; height: 100%;
+            background: #000;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            user-select: none; -webkit-user-select: none;
+            touch-action: none; -webkit-touch-callout: none;
+        }
+        #game-container {
+            width: 100%; height: 100%;
+            position: relative;
+            background: #000;
+        }
+        #canvas {
+            width: 100%; height: 100%;
+            display: block;
+            background: #242424;
+        }
+        #loading {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a2e;
+            z-index: 100;
+            color: #fff;
+            text-align: center;
+        }
+        #loading .spinner {
+            width: 56px; height: 56px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: #c0ff47;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 20px;
+        }
+        #loading .title {
+            font-size: 20px; font-weight: 600;
+            margin-bottom: 8px;
+        }
+        #loading .sub {
+            font-size: 13px; color: rgba(255,255,255,0.5);
+        }
+        #loading .progress {
+            margin-top: 24px;
+            width: 200px; height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #loading .progress-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #c0ff47, #8ae600);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #fullscreen-btn {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 22px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div class="title">Keyboard Escape</div>
+        <div class="sub">...جاري التحميل</div>
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <button id="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+
+    <script src="./playgama-bridge.js"></script>
+    <script>
+        var canvas = document.getElementById('canvas')
+        var loading = document.getElementById('loading')
+        var progressBar = document.getElementById('progress-bar')
+        var fsBtn = document.getElementById('fullscreen-btn')
+
+        var unityInstance = null
+        var messageQueue = []
+
+        function sendMessageToUnity(name, value) {
+            if (unityInstance !== null) {
+                unityInstance.SendMessage('PlaygamaBridge', name, value)
+            } else {
+                messageQueue.push({ name: name, value: value })
+            }
+        }
+
+        function flushMessageQueue() {
+            while (messageQueue.length > 0) {
+                var msg = messageQueue.shift()
+                if (unityInstance !== null) {
+                    unityInstance.SendMessage('PlaygamaBridge', msg.name, msg.value)
+                }
+            }
+        }
+
+        function onLoadingProgress(progress) {
+            var pct = Math.round(progress * 100)
+            progressBar.style.width = pct + '%'
+            if (progress >= 1) {
+                setTimeout(function() {
+                    loading.style.display = 'none'
+                    fsBtn.style.display = 'flex'
+                }, 500)
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                var el = document.documentElement
+                if (el.requestFullscreen) el.requestFullscreen()
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen()
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen()
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+            }
+        }
+
+        document.addEventListener('fullscreenchange', function() {})
+        document.addEventListener('click', function() { if (unityInstance) canvas.focus() })
+        document.addEventListener('touchstart', function() { if (unityInstance) canvas.focus() }, { passive: true })
+
+        bridge.initialize().then(function() {
+            bridge.game.setLoadingProgress(0)
+            progressBar.style.width = '5%'
+            var loader = document.createElement('script')
+            loader.src = 'Build/cee3bfd5589651a8b16e2a12b8abe5b3.loader.js'
+            loader.onload = function() {
+                progressBar.style.width = '10%'
+                createUnityInstance(
+                    canvas,
+                    {
+                        dataUrl: 'Build/42834b39d5f815e78fb17b97d45de351.data.unityweb',
+                        frameworkUrl: 'Build/81d4285664996da7c472bd4273caea6a.framework.js.unityweb',
+                        codeUrl: 'Build/538993929182aa428baa46a0b5f99fb2.wasm.unityweb',
+                        streamingAssetsUrl: 'StreamingAssets',
+                        companyName: 'Lissnikov Games',
+                        productName: 'Keyboard Escape: +1 Speed',
+                        productVersion: '1.0.0',
+                        autoSyncPersistentDataPath: true
+                    },
+                    onLoadingProgress
+                ).then(function(instance) {
+                    unityInstance = instance
+                    canvas.focus()
+                    flushMessageQueue()
+                }).catch(function(error) {
+                    console.error(error)
+                    loading.innerHTML = '<div style="color:#ff6b6b;font-size:18px">فشل التحميل</div><div style="color:rgba(255,255,255,0.4);margin-top:8px;font-size:13px">حاول تحديث الصفحة</div>'
+                })
+            }
+            document.body.appendChild(loader)
+        }).catch(function(error) { console.error(error) })
+    </script>
+</body>
+</html>

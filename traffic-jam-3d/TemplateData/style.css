@@ -1,0 +1,43 @@
+* { border:0; margin:0; padding:0; }
+html,body { width:100%; height:100%; overflow:hidden; background:#222; }
+
+#gameContainer { width:100%; height:100%; }
+#gameContainer canvas { display:block; width:100% !important; height:100% !important; background:#222; }
+
+.webgl-content {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -khtml-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+.webgl-content .logo,
+.progress,
+.text {
+    position:absolute; left:50%; top:40%;
+    -webkit-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
+}
+
+.webgl-content .logo {
+    width:500px; height:155px; display:flex; align-items:center; justify-content:center;
+    font-family:'Times New Roman',Times,serif; font-weight:700; font-size:42px;
+    color:white; text-shadow:2px 2px 4px rgba(0,0,0,0.3);
+}
+.webgl-content .logo::before { content:"Traffic Jam 3D"; }
+
+.webgl-content .progress { height:26px; width:211px; margin-top:120px; }
+.webgl-content .progress .empty { background:#333; float:right; width:100%; height:100%; display:inline-block; }
+.webgl-content .progress .full { background:#4a90d9; float:left; width:0%; height:100%; display:inline-block; }
+
+.webgl-content .text {
+    margin-top:170px; color:white;
+    font-family:'Times New Roman',Times,serif; font-weight:700; font-size:25px;
+    width:500px; text-align:center;
+}
+.webgl-content .spinner { vertical-align:middle; height:100px; }
+.webgl-content .progress.Dark .empty { background:white; }
+.webgl-content .progress.Dark .full { background:royalblue; }
