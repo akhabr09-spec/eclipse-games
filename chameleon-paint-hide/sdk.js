@@ -4,32 +4,69 @@
     static init() {
       console.log('[sdk-stub] YaGames.init called');
       return Promise.resolve({
-        environment: { i18n: { lang: 'en' } },
-        deviceInfo: { type: 'desktop' },
-        features: {},
+        environment: { i18n: { lang: (navigator.language || 'en').substring(0, 2) } },
+        deviceInfo: { type: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop' },
+        features: {
+          LoadRemoteConfig: () => Promise.resolve({ get: () => ({}), getAsString: () => '' }),
+          LoadingAPI: { ready: function() {} },
+        },
         adv: {
           getBannerAdvStatus: () => Promise.resolve({ stickyAdvIsShowing: false, reason: null }),
-          showInterstitial: () => Promise.resolve(),
-          showRewardedVideo: () => Promise.resolve({ status: 'error' }),
-          getBannerAdv: () => Promise.resolve(),
-          destroyBannerAdv: () => Promise.resolve(),
+          showFullscreenAdv: function(callbacks) {
+            console.log('[sdk-stub] showFullscreenAdv called');
+            if (typeof sdk !== 'undefined' && sdk.showBanner) {
+              if (callbacks && callbacks.onOpen) callbacks.onOpen();
+              sdk.showBanner();
+              setTimeout(function() {
+                if (callbacks && callbacks.onClose) callbacks.onClose(true);
+              }, 5000);
+            } else {
+              if (callbacks && callbacks.onError) callbacks.onError('SDK not ready');
+            }
+          },
+          showRewardedVideo: function(callbacks) {
+            console.log('[sdk-stub] showRewardedVideo called');
+            if (typeof sdk !== 'undefined' && sdk.showBanner) {
+              if (callbacks && callbacks.onOpen) callbacks.onOpen();
+              sdk.showBanner();
+              setTimeout(function() {
+                if (callbacks && callbacks.onRewarded) callbacks.onRewarded();
+                setTimeout(function() {
+                  if (callbacks && callbacks.onClose) callbacks.onClose();
+                }, 500);
+              }, 4000);
+            } else {
+              if (callbacks && callbacks.onError) callbacks.onError('SDK not ready');
+            }
+          },
           showBannerAdv: () => Promise.resolve(),
           hideBannerAdv: () => Promise.resolve(),
+          destroyBannerAdv: () => Promise.resolve(),
         },
         getPlayer: () => Promise.resolve({
           getMode: () => 'lite',
           getData: (keys) => {
             const out = {};
-            (keys || []).forEach(k => out[k] = null);
+            (keys || []).forEach(k => {
+              const cached = localStorage.getItem('gm_' + k);
+              out[k] = cached || null;
+            });
             return Promise.resolve(out);
           },
-          setData: () => Promise.resolve(),
+          setData: (data) => {
+            if (data) {
+              Object.keys(data).forEach(k => {
+                if (data[k] != null) localStorage.setItem('gm_' + k, JSON.stringify(data[k]));
+              });
+            }
+            return Promise.resolve();
+          },
           getStats: () => Promise.resolve({}),
           setStats: () => Promise.resolve(),
           getName: () => 'Player',
           getPhoto: () => '',
-          getUniqueID: () => 'stub-player',
-          uniqueId: 'stub-player',
+          getUniqueID: () => 'gamemonetize-player',
+          uniqueId: 'gamemonetize-player',
           getSignedData: () => Promise.resolve(''),
         }),
         getFlags: () => Promise.resolve({}),
@@ -45,7 +82,6 @@
           consumePurchase: () => Promise.resolve(),
         }),
         purchases: { getPurchases: () => Promise.resolve([]), consumePurchase: () => Promise.resolve() },
-        features: { LoadRemoteConfig: () => Promise.resolve({ get: () => ({}), getAsString: () => '' }) },
       });
     }
   }
