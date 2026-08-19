@@ -4,11 +4,10 @@
 <head><meta charset="utf-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title></title>
-<base href="https://akhabr09-spec.github.io/eclipse-games/gangster-v/">
-<script src="jquery.js"></script>
-<script src="storage.js"></script>
-<script src="interop.js"></script>
-<script src="external.js"></script>
+<script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/jquery.js"></script>
+<script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/storage.js"></script>
+<script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/interop.js"></script>
+<script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/external.js"></script>
 <script>
 window.ndk = {
     adv: {
@@ -66,10 +65,12 @@ window.SDK_OPTIONS = {
 };
 (function(a,b,c){var d=a.getElementsByTagName(b)[0];a.getElementById(c)||(a=a.createElement(b),a.id=c,a.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(a,d))})(document,"script","gamemonetize-sdk");
 </script>
-<script src="gameloader.js"></script>
-<link rel="stylesheet" type="text/css" href="style.css"/>
+<script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/gameloader.js"></script>
+<link rel="stylesheet" type="text/css" href="https://akhabr09-spec.github.io/eclipse-games/gangster-v/style.css"/>
 <script>
 window.alert = function(_log){console.log(_log);};
+
+var GH_BASE = "https://akhabr09-spec.github.io/eclipse-games/gangster-v/";
 
 function xhrDownload(url, onProgress) {
     return new Promise(function(resolve, reject) {
@@ -89,7 +90,7 @@ function xhrDownload(url, onProgress) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var buildJsonUrl = "Build/build.json";
+    var buildJsonUrl = GH_BASE + "Build/build.json";
 
     xhrDownload(buildJsonUrl).then(function(blob) {
         return new Promise(function(resolve) {
@@ -98,11 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsText(blob);
         });
     }).then(function(config) {
-        var base = "Build/";
         var filesToFetch = [];
-        if (config.dataUrl) filesToFetch.push({ key: "dataUrl", url: base + config.dataUrl });
-        if (config.wasmCodeUrl) filesToFetch.push({ key: "wasmCodeUrl", url: base + config.wasmCodeUrl });
-        if (config.wasmFrameworkUrl) filesToFetch.push({ key: "wasmFrameworkUrl", url: base + config.wasmFrameworkUrl });
+        if (config.dataUrl) filesToFetch.push({ key: "dataUrl", url: GH_BASE + "Build/" + config.dataUrl });
+        if (config.wasmCodeUrl) filesToFetch.push({ key: "wasmCodeUrl", url: GH_BASE + "Build/" + config.wasmCodeUrl });
+        if (config.wasmFrameworkUrl) filesToFetch.push({ key: "wasmFrameworkUrl", url: GH_BASE + "Build/" + config.wasmFrameworkUrl });
 
         var done = 0;
         var total = filesToFetch.length || 1;
@@ -115,25 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        if (filesToFetch.length === 0) {
-            checkDone();
-            return;
-        }
+        if (filesToFetch.length === 0) { checkDone(); return; }
 
         filesToFetch.forEach(function(f) {
             xhrDownload(f.url, function(p) {
-                console.log("[gangster-v] " + f.url + ": " + Math.round(p * 100) + "%");
+                console.log("[gangster-v] " + f.key + ": " + Math.round(p * 100) + "%");
             }).then(function(blob) {
                 config[f.key] = URL.createObjectURL(blob);
                 console.log("[gangster-v] " + f.key + " ready: " + blob.size + " bytes");
                 checkDone();
             }).catch(function(e) {
-                console.warn("[gangster-v] " + f.url + " failed: " + e.message);
+                console.warn("[gangster-v] " + f.key + " failed: " + e.message);
                 checkDone();
             });
         });
     }).catch(function(e) {
-        console.warn("[gangster-v] build.json fetch failed: " + e.message + ", using direct URL");
+        console.warn("[gangster-v] build.json fetch failed: " + e.message);
         window.unityInstance = UnityLoader.instantiate("unityContainer", buildJsonUrl);
     });
 });
