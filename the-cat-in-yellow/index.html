@@ -85,8 +85,32 @@ window.YaGames = {
 })(document, "script", "gamemonetize-sdk");
 </script>
 
+<!-- Platform SDK adapter for Unity PlatformBridge.jslib -->
+<script>
+window.platformSDK = {
+    platform: 'gamemonetize',
+    showInterstitial: function() {
+        if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+    },
+    showRewarded: function(callback) {
+        if (typeof sdk !== 'undefined' && sdk.showBanner) {
+            sdk.showBanner();
+            callback(1);
+        } else {
+            callback(0);
+        }
+    },
+    sendGameUpdate: function() { return Promise.resolve(false); },
+    getPlayerData: function() { return Promise.resolve({}); },
+    setPlayerData: function() { return Promise.resolve(); },
+    getContext: function() { return { id: null, type: null }; },
+    chooseContext: function() { return Promise.resolve(false); }
+};
+</script>
+
 <script>
     var myGameInstance = null;
+    var firstAdShown = false;
 
     function loadUnity() {
         var container = document.querySelector("#unity-container");
@@ -150,6 +174,7 @@ window.YaGames = {
                 myGameInstance = unityInstance;
                 loadingBar.style.display = "none";
                 console.log('Unity game loaded successfully');
+                showFirstAd();
             }).catch(function(message) {
                 alert(message);
             });
@@ -166,7 +191,20 @@ window.YaGames = {
     function showAd() {
         if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
             sdk.showBanner();
+            return true;
         }
+        return false;
+    }
+
+    // Show the first GameMonetize ad exactly once, right after the game loads.
+    // GameMonetize requirement: first ad must appear on load / first play.
+    function showFirstAd() {
+        if (firstAdShown) return;
+        firstAdShown = true;
+        (function tryAd(attempt) {
+            if (showAd()) return;
+            if (attempt < 20) setTimeout(function() { tryAd(attempt + 1); }, 500);
+        })(0);
     }
 </script>
 </body>
