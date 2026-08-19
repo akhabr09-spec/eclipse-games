@@ -81,6 +81,37 @@
     };
     (function(a,b,c){var d=a.getElementsByTagName(b)[0];a.getElementById(c)||(a=a.createElement(b),a.id=c,a.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(a,d))})(document,"script","gamemonetize-sdk");
 </script>
+<!-- YandexGamesWrapper stub (localStorage-based saves) -->
+<script type="text/javascript">
+    window.yandexGamesWrapper = (function() {
+        var cache = {};
+        return {
+            gameIsReady: function() {},
+            getScoreTable: function() { if (typeof application !== 'undefined') application.publishEvent("ScoreTablePlatformEvent", "[]"); },
+            invokeInterstitial: function() {
+                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+                return Promise.resolve();
+            },
+            invokePurchase: function() { return Promise.reject("No purchases"); },
+            invokeRewarded: function() {
+                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+                return Promise.resolve();
+            },
+            isInterstitialVisible: function() { return false; },
+            isRewardedVisible: function() { return false; },
+            resolveCacheProducts: function() { return "[]"; },
+            resolveCachePurchases: function() { return "[]"; },
+            resolveCacheSaves: function(tag) { return cache[tag] || "Empty"; },
+            resolveLanguage: function() {
+                try { return document.documentElement.lang || "en"; } catch(e) { return "en"; }
+            },
+            resolveServerPurchases: function() { return Promise.resolve([]); },
+            setScore: function() {},
+            writeCacheSaves: function(tag, json) { cache[tag] = json; },
+            writeSaves: function() { return Promise.resolve(); }
+        };
+    })();
+</script>
 <!-- Application interface. -->
 <script type="text/javascript" src="lib/application.js"></script>
 <script type="text/javascript" src="lib/aspectRatio.js"></script>
