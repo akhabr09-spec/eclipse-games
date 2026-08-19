@@ -13,6 +13,27 @@
         if (blobMatch && blobMatch[1] !== url) {
             input = blobMatch[1];
         }
+        if (typeof input === 'string' && input.indexOf('github.io') !== -1) {
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', input, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function() {
+                    var headers = {};
+                    var ct = xhr.getResponseHeader('Content-Type');
+                    if (ct) headers['Content-Type'] = ct;
+                    var ce = xhr.getResponseHeader('Content-Encoding');
+                    if (ce) headers['Content-Encoding'] = ce;
+                    resolve(new Response(xhr.response, {
+                        status: xhr.status,
+                        statusText: xhr.statusText || 'OK',
+                        headers: headers
+                    }));
+                };
+                xhr.onerror = function() { reject(new Error('Network error')); };
+                xhr.send();
+            });
+        }
         return _nativeFetch.call(window, input, init);
     };
 })();
@@ -99,67 +120,23 @@ function xhrDownload(url) {
     });
 }
 
-function detectCompression(buffer) {
-    var bytes = new Uint8Array(buffer);
-    if (bytes[0] === 0x1f && bytes[1] === 0x8b) return "gzip";
-    if (bytes[0] === 0x0b) return "br";
-    return "identity";
-}
-
-function decompressUnityWeb(buffer) {
-    var fmt = detectCompression(buffer);
-    console.log("[gangster-v] compression: " + fmt);
-    if (fmt === "identity") return Promise.resolve(buffer);
-    if (typeof DecompressionStream !== "undefined") {
-        var ds = new DecompressionStream(fmt === "br" ? "deflate-raw" : "gzip");
-        var writer = ds.writable.getWriter();
-        writer.write(new Uint8Array(buffer));
-        writer.close();
-        return new Response(ds.readable).arrayBuffer();
-    }
-    return Promise.resolve(buffer);
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     var buildJsonUrl = GH_BASE + "Build/build.json";
 
     xhrDownload(buildJsonUrl).then(function(buf) {
-        return new Promise(function(resolve) {
-            var decoder = new TextDecoder();
-            resolve(JSON.parse(decoder.decode(new Uint8Array(buf))));
-        });
-    }).then(function(config) {
-        var filesToFetch = [];
-        if (config.dataUrl) filesToFetch.push({ key: "dataUrl", url: GH_BASE + "Build/" + config.dataUrl });
-        if (config.wasmCodeUrl) filesToFetch.push({ key: "wasmCodeUrl", url: GH_BASE + "Build/" + config.wasmCodeUrl });
-        if (config.wasmFrameworkUrl) filesToFetch.push({ key: "wasmFrameworkUrl", url: GH_BASE + "Build/" + config.wasmFrameworkUrl });
+        var decoder = new TextDecoder();
+        var config = JSON.parse(decoder.decode(new Uint8Array(buf)));
 
-        var done = 0;
-        var total = filesToFetch.length || 1;
-
-        function checkDone() {
-            done++;
-            if (done >= total) {
-                var blobUrl = URL.createObjectURL(new Blob([JSON.stringify(config)], {type: "application/json"}));
-                window.unityInstance = UnityLoader.instantiate("unityContainer", blobUrl);
+        // Rewrite all relative URLs to absolute GitHub Pages URLs
+        var keys = ["dataUrl", "wasmCodeUrl", "wasmFrameworkUrl", "frameworkUrl", "codeUrl", "memoryUrl", "audioUrl"];
+        keys.forEach(function(k) {
+            if (config[k] && config[k].indexOf("http") !== 0) {
+                config[k] = GH_BASE + "Build/" + config[k];
             }
-        }
-
-        if (filesToFetch.length === 0) { checkDone(); return; }
-
-        filesToFetch.forEach(function(f) {
-            xhrDownload(f.url).then(function(rawBuf) {
-                return decompressUnityWeb(rawBuf);
-            }).then(function(decompressedBuf) {
-                var blob = new Blob([decompressedBuf]);
-                config[f.key] = URL.createObjectURL(blob);
-                console.log("[gangster-v] " + f.key + " ready: " + blob.size + " bytes (decompressed)");
-                checkDone();
-            }).catch(function(e) {
-                console.warn("[gangster-v] " + f.key + " failed: " + e.message);
-                checkDone();
-            });
         });
+
+        var blobUrl = URL.createObjectURL(new Blob([JSON.stringify(config)], {type: "application/json"}));
+        window.unityInstance = UnityLoader.instantiate("unityContainer", blobUrl);
     }).catch(function(e) {
         console.warn("[gangster-v] build.json fetch failed: " + e.message);
     });
