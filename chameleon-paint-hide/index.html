@@ -6,6 +6,38 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=yes"/>
 <title></title>
+<script>
+(function() {
+    var _antFetch = window.fetch;
+    if (!_antFetch) return;
+    window.fetch = function(input, init) {
+        var url = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+        if (url.indexOf('.github.io') !== -1) {
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open((init && init.method) || 'GET', url, true);
+                if (init && init.headers) {
+                    try {
+                        if (typeof init.headers.forEach === 'function') {
+                            init.headers.forEach(function(v, k) { xhr.setRequestHeader(k, v); });
+                        } else {
+                            Object.keys(init.headers).forEach(function(k) { xhr.setRequestHeader(k, init.headers[k]); });
+                        }
+                    } catch(e) {}
+                }
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function() {
+                    var blob = new Blob([xhr.response]);
+                    resolve(new Response(blob, { status: xhr.status, statusText: xhr.statusText }));
+                };
+                xhr.onerror = function() { reject(new Error('Network error')); };
+                xhr.send((init && init.body) || null);
+            });
+        }
+        return _antFetch.call(this, input, init);
+    };
+})();
+</script>
 <link rel="shortcut icon" href="img/favicon.ico"/>
 <link rel="stylesheet" href="css/main.css"/>
 <link rel="manifest" href="json/manifest.webmanifest"/>
