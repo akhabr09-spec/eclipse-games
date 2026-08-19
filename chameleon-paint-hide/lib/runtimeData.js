@@ -12,10 +12,10 @@ const runtimeData = (function () {
         // File references.
         buildURL: "bin",
         loaderURL: "bin/Chameleon_v3_Web_YandexGames.loader.js",
-        dataURL: "bin/Chameleon_v3_Web_YandexGames.data",
-        frameworkURL: "bin/Chameleon_v3_Web_YandexGames.framework.js",
+        dataURL: "https://akhabr09-spec.github.io/eclipse-games/chameleon-paint-hide/bin/Chameleon_v3_Web_YandexGames.data",
+        frameworkURL: "bin/Chameleon_v3_Web_YandexGames.framework.js?v=2",
         workerURL: "",
-        codeURL: "bin/Chameleon_v3_Web_YandexGames.wasm",
+        codeURL: "https://akhabr09-spec.github.io/eclipse-games/chameleon-paint-hide/bin/Chameleon_v3_Web_YandexGames.wasm",
         symbolsURL: "",
         streamingURL: "streaming",
 
