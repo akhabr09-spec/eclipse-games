@@ -82,6 +82,7 @@ window.gp = {
 };
 </script>
 <script>
+window._gmFirstBannerShown = false;
 window.SDK_OPTIONS = {
     gameId: "1tg2suqkd8esjlvusoe0bzbfwljtc235",
     onEvent: function(a) {
@@ -93,6 +94,12 @@ window.SDK_OPTIONS = {
             case "SDK_GAME_START":
                 var c = document.querySelector("#unityContainer canvas");
                 if (c) c.style.display = "block";
+                if (!window._gmFirstBannerShown) {
+                    window._gmFirstBannerShown = true;
+                    setTimeout(function() {
+                        if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+                    }, 500);
+                }
                 break;
         }
     }
@@ -137,6 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var blobUrl = URL.createObjectURL(new Blob([JSON.stringify(config)], {type: "application/json"}));
         window.unityInstance = UnityLoader.instantiate("unityContainer", blobUrl);
+        // Show initial banner ad after game loads
+        setTimeout(function() {
+            if (!window._gmFirstBannerShown && typeof sdk !== 'undefined' && sdk.showBanner) {
+                window._gmFirstBannerShown = true;
+                sdk.showBanner();
+            }
+        }, 8000);
     }).catch(function(e) {
         console.warn("[gangster-v] build.json fetch failed: " + e.message);
     });
