@@ -1,4 +1,4 @@
-
+if(typeof yandexGamesWrapper==="undefined"){var _gmc={};yandexGamesWrapper={gameIsReady:function(){},getScoreTable:function(){},invokeInterstitial:function(){return Promise.resolve()},invokePurchase:function(){return Promise.reject()},invokeRewarded:function(){return Promise.resolve()},isInterstitialVisible:function(){return false},isRewardedVisible:function(){return false},resolveCacheProducts:function(){return"[]"},resolveCachePurchases:function(){return"[]"},resolveCacheSaves:function(t){return _gmc[t]||"Empty"},resolveLanguage:function(){return"en"},resolveServerPurchases:function(){return Promise.resolve([])},setScore:function(){},writeCacheSaves:function(t,j){_gmc[t]=j},writeSaves:function(){return Promise.resolve()}};}
 var unityFramework = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
