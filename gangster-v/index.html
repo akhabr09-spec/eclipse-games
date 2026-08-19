@@ -65,6 +65,49 @@ window.SDK_OPTIONS = {
 };
 (function(a,b,c){var d=a.getElementsByTagName(b)[0];a.getElementById(c)||(a=a.createElement(b),a.id=c,a.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(a,d))})(document,"script","gamemonetize-sdk");
 </script>
+<script>
+// Bypass frame_ant.js: intercept fetch to fix mangled blob URLs
+(function() {
+    var _frameAntFetch = window.fetch;
+    window.fetch = function(input, init) {
+        var url = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+        // Fix mangled blob URLs: "1tg2.../Build/blob:https://..." → extract the blob: URL
+        var blobMatch = url.match(/(blob:[^\s"']+)/);
+        if (blobMatch && blobMatch[1] !== url) {
+            input = blobMatch[1];
+        }
+        // Also bypass frame_ant for GitHub Pages URLs
+        if (typeof input === 'string' && input.indexOf('github.io') !== -1) {
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', input, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(new Response(xhr.response, {
+                            status: xhr.status,
+                            headers: { 'Content-Type': xhr.getResponseHeader('Content-Type') || 'application/octet-stream' }
+                        }));
+                    } else {
+                        reject(new Error('XHR failed ' + xhr.status));
+                    }
+                };
+                xhr.onerror = function() { reject(new Error('Network error')); };
+                xhr.send();
+            });
+        }
+        return _frameAntFetch.call(this, input, init);
+    };
+    // Prevent GameMonetize from re-overriding fetch
+    try {
+        Object.defineProperty(window, 'fetch', {
+            get: function() { return window.fetch; },
+            set: function() {},
+            configurable: false
+        });
+    } catch(e) {}
+})();
+</script>
 <script src="https://akhabr09-spec.github.io/eclipse-games/gangster-v/gameloader.js"></script>
 <link rel="stylesheet" type="text/css" href="https://akhabr09-spec.github.io/eclipse-games/gangster-v/style.css"/>
 <script>
