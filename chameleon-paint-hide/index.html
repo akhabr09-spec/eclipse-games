@@ -10,6 +10,36 @@
 <link rel="stylesheet" href="css/main.css"/>
 <link rel="manifest" href="json/manifest.webmanifest"/>
 <script type="text/javascript">
+    window.yandexGamesWrapper = (function() {
+        var cache = {};
+        return {
+            gameIsReady: function() {},
+            getScoreTable: function() { if (typeof application !== 'undefined') application.publishEvent("ScoreTablePlatformEvent", "[]"); },
+            invokeInterstitial: function() {
+                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+                return Promise.resolve();
+            },
+            invokePurchase: function() { return Promise.reject("No purchases"); },
+            invokeRewarded: function() {
+                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
+                return Promise.resolve();
+            },
+            isInterstitialVisible: function() { return false; },
+            isRewardedVisible: function() { return false; },
+            resolveCacheProducts: function() { return "[]"; },
+            resolveCachePurchases: function() { return "[]"; },
+            resolveCacheSaves: function(tag) { return cache[tag] || "Empty"; },
+            resolveLanguage: function() {
+                try { return document.documentElement.lang || "en"; } catch(e) { return "en"; }
+            },
+            resolveServerPurchases: function() { return Promise.resolve([]); },
+            setScore: function() {},
+            writeCacheSaves: function(tag, json) { cache[tag] = json; },
+            writeSaves: function() { return Promise.resolve(); }
+        };
+    })();
+</script>
+<script type="text/javascript">
         function onRuntimeDataReady() {
             console.log("runtimeData is ready");
 
@@ -52,16 +82,10 @@
         document.body.style.backgroundImage = "url('img/" + runtimeData.backgroundTextureName + "')";
         document.getElementById("unity-logo").style.backgroundImage = "url('img/" + runtimeData.iconTextureName + "')";
     </script>
-<!-- Memory diagnostics. -->
-<link rel="stylesheet" href="css/diagnostics.css"/>
-<script src="lib/diagnostics.js"></script>
-<script type="text/javascript">
-        let diagnosticsIcon = document.createElement('img');
-        diagnosticsIcon.id = 'diagnostics-icon';
-        diagnosticsIcon.src = 'img/diagnostics_128x128.png';
-        diagnosticsIcon.style.display = "none";
-        document.body.appendChild(diagnosticsIcon);
-    </script>
+<!-- Application interface. -->
+<script type="text/javascript" src="lib/application.js"></script>
+<script type="text/javascript" src="lib/aspectRatio.js"></script>
+<script type="text/javascript" src="lib/commonFixes.js"></script>
 <!-- GameMonetize SDK (inline) -->
 <script type="text/javascript">
     window.SDK_OPTIONS = {
@@ -81,41 +105,6 @@
     };
     (function(a,b,c){var d=a.getElementsByTagName(b)[0];a.getElementById(c)||(a=a.createElement(b),a.id=c,a.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(a,d))})(document,"script","gamemonetize-sdk");
 </script>
-<!-- YandexGamesWrapper stub (localStorage-based saves) -->
-<script type="text/javascript">
-    window.yandexGamesWrapper = (function() {
-        var cache = {};
-        return {
-            gameIsReady: function() {},
-            getScoreTable: function() { if (typeof application !== 'undefined') application.publishEvent("ScoreTablePlatformEvent", "[]"); },
-            invokeInterstitial: function() {
-                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
-                return Promise.resolve();
-            },
-            invokePurchase: function() { return Promise.reject("No purchases"); },
-            invokeRewarded: function() {
-                if (typeof sdk !== 'undefined' && sdk.showBanner) sdk.showBanner();
-                return Promise.resolve();
-            },
-            isInterstitialVisible: function() { return false; },
-            isRewardedVisible: function() { return false; },
-            resolveCacheProducts: function() { return "[]"; },
-            resolveCachePurchases: function() { return "[]"; },
-            resolveCacheSaves: function(tag) { return cache[tag] || "Empty"; },
-            resolveLanguage: function() {
-                try { return document.documentElement.lang || "en"; } catch(e) { return "en"; }
-            },
-            resolveServerPurchases: function() { return Promise.resolve([]); },
-            setScore: function() {},
-            writeCacheSaves: function(tag, json) { cache[tag] = json; },
-            writeSaves: function() { return Promise.resolve(); }
-        };
-    })();
-</script>
-<!-- Application interface. -->
-<script type="text/javascript" src="lib/application.js"></script>
-<script type="text/javascript" src="lib/aspectRatio.js"></script>
-<script type="text/javascript" src="lib/commonFixes.js"></script>
 <script type="text/javascript">
         application.initialize();
     </script>
