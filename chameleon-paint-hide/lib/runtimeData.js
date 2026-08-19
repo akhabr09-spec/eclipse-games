@@ -36,7 +36,7 @@ const runtimeData = (function () {
         prefsContainerTags: [ "json-data", "HairsAndColors", "SkinsAllNew", "PetsAllNew" ],
 
         // Platform specific scripts.
-        wrapperScript: "gamemonetizeWrapper.js",
+        wrapperScript: "",
 
         // YandexGames.
         yandexGamesSDK: "",

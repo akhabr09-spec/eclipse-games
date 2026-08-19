@@ -62,28 +62,31 @@
         diagnosticsIcon.style.display = "none";
         document.body.appendChild(diagnosticsIcon);
     </script>
+<!-- GameMonetize SDK (inline) -->
+<script type="text/javascript">
+    window.SDK_OPTIONS = {
+        gameId: "aujaqhwwcs47cnkt84sx17flp1tcn5cg",
+        onEvent: function(a) {
+            switch (a.name) {
+                case "SDK_GAME_PAUSE":
+                    var c = document.querySelector("#unity-canvas");
+                    if (c) c.style.display = "none";
+                    break;
+                case "SDK_GAME_START":
+                    var c = document.querySelector("#unity-canvas");
+                    if (c) c.style.display = "block";
+                    break;
+            }
+        }
+    };
+    (function(a,b,c){var d=a.getElementsByTagName(b)[0];a.getElementById(c)||(a=a.createElement(b),a.id=c,a.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(a,d))})(document,"script","gamemonetize-sdk");
+</script>
 <!-- Application interface. -->
 <script type="text/javascript" src="lib/application.js"></script>
 <script type="text/javascript" src="lib/aspectRatio.js"></script>
 <script type="text/javascript" src="lib/commonFixes.js"></script>
 <script type="text/javascript">
-        if (runtimeData.wrapperScript == "") {
-            console.error("Wrapper script is not valid.");
-            application.initialize();
-        }
-        let script = document.createElement("script");
-        script.src = "lib/" + runtimeData.wrapperScript;
-        script.src += "?r=" + Math.random();
-        script.onload = () => {
-            if (typeof initializeWrapper === 'function') {
-                initializeWrapper();
-            }
-            else {
-                console.error("Wrapper module not found.");
-                application.initialize();
-            }
-        };
-        document.body.appendChild(script);
+        application.initialize();
     </script>
 </body>
 </html>
